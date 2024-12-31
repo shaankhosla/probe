@@ -51,30 +51,32 @@ func getAllColumns(filename string) string {
 
 }
 func initializeViews(table *tview.Table, columns *tview.TextView, filename string) {
-	results := executeSQL("select * from data", filename)
-	updateTable(table, results)
+	results, err := executeSQL("select * from data", filename)
+	if err == nil {
+		updateTable(table, results)
+	}
 
 	columnText := getAllColumns(filename)
 	columns.SetText(columnText).ScrollToBeginning()
 }
 
-func executeSQL(query string, filename string) [][]string {
+func executeSQL(query string, filename string) ([][]string, error) {
 	query = reformatSQL(query, filename)
 	db, err := sql.Open("duckdb", "")
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to connect to DuckDB: %w", err)
 	}
 	defer db.Close()
 
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Fatalf("Failed to execute query: %s", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	defer rows.Close()
 
 	columns, err := rows.Columns()
 	if err != nil {
-		log.Fatalf("Failed to fetch column names: %s", err)
+		return nil, fmt.Errorf("failed to fetch column names: %w", err)
 	}
 
 	var result [][]string
@@ -87,7 +89,7 @@ func executeSQL(query string, filename string) [][]string {
 		}
 
 		if err := rows.Scan(valuePointers...); err != nil {
-			log.Fatalf("Failed to scan row: %s", err)
+			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
 		row := make([]string, len(columns))
@@ -103,10 +105,10 @@ func executeSQL(query string, filename string) [][]string {
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Fatalf("Row iteration error: %s", err)
+		return nil, fmt.Errorf("row iteration error: %w", err)
 	}
 
-	return result
+	return result, nil
 }
 
 func runProbe(filename string) error {
@@ -129,6 +131,11 @@ func runProbe(filename string) error {
 		AddItem(columnsTextView, 0, 1, false)
 
 	var inputField *tview.InputField
+	var errorTextView *tview.TextView
+	errorTextView = tview.NewTextView().
+		SetWrap(true).
+		SetDynamicColors(true).
+		SetTextAlign(tview.AlignLeft)
 
 	inputField = tview.NewInputField().
 		SetLabel("SQL Query: ").
@@ -138,11 +145,17 @@ func runProbe(filename string) error {
 		SetFieldBackgroundColor(tcell.ColorBlack).
 		SetDoneFunc(func(key tcell.Key) {
 			query := inputField.GetText()
-			results := executeSQL(query, filename)
-			updateTable(resultsTable, results)
+			results, err := executeSQL(query, filename)
+			if err != nil {
+				errorTextView.SetText(fmt.Sprintf("Error: %s", err.Error()))
+				resultsTable.Clear()
+			} else {
+				updateTable(resultsTable, results)
+				errorTextView.SetText("")
+			}
 		})
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyCtrlC { // Ctrl+C to quit
+		if event.Key() == tcell.KeyCtrlC {
 			app.Stop()
 			return nil
 		}
@@ -153,7 +166,9 @@ func runProbe(filename string) error {
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(instructions, 0, 1, false).
 			AddItem(inputField, 3, 1, true).
+			AddItem(errorTextView, 3, 1, false).
 			AddItem(resultsTable, 0, 10, false), 0, 5, true)
+
 	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
 		panic(err)
 	}
