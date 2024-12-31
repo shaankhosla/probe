@@ -15,10 +15,10 @@ import (
 
 func reformatSQL(query string, filename string) string {
 	fromStatement := fmt.Sprintf("from '%s'", filename)
-	if !strings.Contains(query, "limit") {
-		fromStatement += " limit 10"
-	}
 	query = strings.Replace(query, "from data", fromStatement, 1)
+	if !strings.Contains(query, "limit") {
+		query += " limit 100"
+	}
 	return query
 
 }
@@ -140,7 +140,7 @@ func runProbe(filename string) error {
 	inputField = tview.NewInputField().
 		SetLabel("SQL Query: ").
 		SetText("select * from data").
-		SetFieldWidth(40).
+		// SetFieldWidth(40).
 		SetFieldTextColor(tcell.ColorWhite).
 		SetFieldBackgroundColor(tcell.ColorBlack).
 		SetDoneFunc(func(key tcell.Key) {
@@ -166,7 +166,7 @@ func runProbe(filename string) error {
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(instructions, 0, 1, false).
 			AddItem(inputField, 3, 1, true).
-			AddItem(errorTextView, 3, 1, false).
+			AddItem(errorTextView, 0, 1, false).
 			AddItem(resultsTable, 0, 10, false), 0, 5, true)
 
 	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
