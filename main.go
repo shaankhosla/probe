@@ -13,12 +13,53 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func executeSQL(query string, filename string) [][]string {
+func reformatSQL(query string, filename string) string {
 	fromStatement := fmt.Sprintf("from '%s'", filename)
 	if !strings.Contains(query, "limit") {
 		fromStatement += " limit 10"
 	}
 	query = strings.Replace(query, "from data", fromStatement, 1)
+	return query
+
+}
+
+func getAllColumns(filename string) string {
+	query := "select * from data"
+	query = reformatSQL(query, filename)
+	db, err := sql.Open("duckdb", "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatalf("Failed to execute query: %s", err)
+	}
+	defer rows.Close()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		log.Fatalf("Failed to fetch column names: %s", err)
+	}
+
+	columnText := ""
+	for _, col := range columns {
+		columnText += col + "\n"
+	}
+	return columnText
+
+}
+func initializeViews(table *tview.Table, columns *tview.TextView, filename string) {
+	results := executeSQL("select * from data", filename)
+	updateTable(table, results)
+
+	columnText := getAllColumns(filename)
+	columns.SetText(columnText).ScrollToBeginning()
+}
+
+func executeSQL(query string, filename string) [][]string {
+	query = reformatSQL(query, filename)
 	db, err := sql.Open("duckdb", "")
 	if err != nil {
 		log.Fatal(err)
@@ -65,10 +106,6 @@ func executeSQL(query string, filename string) [][]string {
 		log.Fatalf("Row iteration error: %s", err)
 	}
 
-	// for _, row := range result {
-	// 	fmt.Println(row)
-	// }
-
 	return result
 }
 
@@ -83,10 +120,19 @@ func runProbe(filename string) error {
 	resultsTable := tview.NewTable().
 		SetBorders(true)
 
+	columnsTextView := tview.NewTextView().
+		SetWrap(true).
+		SetTextAlign(tview.AlignLeft)
+
+	initializeViews(resultsTable, columnsTextView, filename)
+	columnsBoxWithContent := tview.NewFlex().
+		AddItem(columnsTextView, 0, 1, false)
+
 	var inputField *tview.InputField
 
 	inputField = tview.NewInputField().
 		SetLabel("SQL Query: ").
+		SetText("select * from data").
 		SetFieldWidth(40).
 		SetFieldTextColor(tcell.ColorWhite).
 		SetFieldBackgroundColor(tcell.ColorBlack).
@@ -103,10 +149,11 @@ func runProbe(filename string) error {
 		return event
 	})
 	flex := tview.NewFlex().
-		SetDirection(tview.FlexRow).
-		AddItem(instructions, 0, 1, false).
-		AddItem(inputField, 3, 1, true).
-		AddItem(resultsTable, 0, 10, false)
+		AddItem(columnsBoxWithContent, 0, 1, false).
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(instructions, 0, 1, false).
+			AddItem(inputField, 3, 1, true).
+			AddItem(resultsTable, 0, 10, false), 0, 5, true)
 	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
 		panic(err)
 	}
