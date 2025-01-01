@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Constants
-REPO_OWNER="your-repo-owner"  # Replace with your GitHub username/org
-REPO_NAME="your-repo-name"    # Replace with your repository name
-INSTALL_DIR="/usr/local/bin"  # Directory to install the binary
-BINARY_NAME="probe"           # Replace with your binary name
+REPO_OWNER="shaankhosla"  
+REPO_NAME="probe"
+INSTALL_DIR="/usr/local/bin"
+BINARY_NAME="probe"        
 LATEST_RELEASE_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
 
 # Colors for fancy output
