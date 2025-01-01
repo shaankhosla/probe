@@ -131,8 +131,7 @@ func runProbe(filename string) error {
 		AddItem(columnsTextView, 0, 1, false)
 
 	var inputField *tview.InputField
-	var errorTextView *tview.TextView
-	errorTextView = tview.NewTextView().
+	errorTextView := tview.NewTextView().
 		SetWrap(true).
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignLeft)
