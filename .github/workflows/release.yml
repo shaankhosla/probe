@@ -11,9 +11,9 @@ jobs:
     strategy:
       matrix:
          include:
-          - os: ubuntu-latest
-            goos: linux
-            goarch: amd64
+          # - os: ubuntu-latest
+          #   goos: linux
+          #   goarch: amd64
           - os: ubuntu-latest
             goos: linux
             goarch: arm64
