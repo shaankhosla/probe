@@ -56,9 +56,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub token provided automatically by Actions
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: output/
-          asset_name: "{{basename}}.tar.gz"
-          asset_content_type: application/gzip
+          files: output/*
