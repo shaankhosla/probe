@@ -30,7 +30,7 @@ jobs:
 
       - name: Build binary
         run: |
-          CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o probe-linux-arm64.exe 
+          CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o probe-linux-arm64.exe cmd/probe/main.go 
 
       - name: Run tests
         run: |
