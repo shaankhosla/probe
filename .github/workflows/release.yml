@@ -27,7 +27,15 @@ jobs:
       - name: Build Binaries for All Platforms
         run: |
           mkdir -p output
+          # Linux ARM64
           CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o output/probe-linux-arm64.exe main.go
+
+          # macOS AMD64
+          GOOS=darwin GOARCH=amd64 go build -o output/probe-darwin-amd64 cmd/probe/main.go
+
+          # macOS ARM64
+          GOOS=darwin GOARCH=arm64 go build -o output/probe-darwin-arm64 cmd/probe/main.go
+
 
       - name: Archive Binaries
         run: |
