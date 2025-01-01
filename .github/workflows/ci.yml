@@ -26,9 +26,11 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
+          args: --timeout=5m
+          skip-cache: false
           version: latest
 
-      - name: Install ARM64 Toolchain
+      - name: Install Build Tools
         run: |
           sudo apt-get update && sudo apt-get install build-essential gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
