@@ -30,23 +30,7 @@ jobs:
 
       - name: Build binary
         run: |
-          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o probe-linux-amd64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o probe-linux-arm64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=6 go build -o probe-linux-arm6.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build -o probe-linux-arm7.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-
-          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -o probe-windows-amd64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=windows GOARCH=arm64 go build -o probe-windows-arm64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=windows GOARCH=arm GOARM=6 go build -o probe-windows-arm6.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=windows GOARCH=arm GOARM=7 go build -o probe-windows-arm7.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-
-          CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -o probe-darwin-amd64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -o probe-darwin-arm64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-
-          CGO_ENABLED=1 GOOS=freebsd GOARCH=amd64 go build -o probe-freebsd-amd64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=freebsd GOARCH=arm64 go build -o probe-freebsd-arm64.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=freebsd GOARCH=arm GOARM=6 go build -o probe-freebsd-arm6.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
-          CGO_ENABLED=1 GOOS=freebsd GOARCH=arm GOARM=7 go build -o probe-freebsd-arm7.exe -ldflags="-s -w -extldflags=-static" cmd/probe/main.go
+          CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o probe-linux-arm64.exe 
 
       - name: Run tests
         run: |
