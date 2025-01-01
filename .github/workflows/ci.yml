@@ -41,8 +41,15 @@ jobs:
 
       - name: Build binary
         run: |
-          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o probe-linux-arm64.exe cmd/probe/main.go
+          mkdir -p output
+          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o output/probe-linux-arm64.exe main.go
  
       - name: Run tests
         run: |
           go test --race -v -count=1 -coverprofile=coverage.out ./...
+      
+      - name: Upload Binaries (Artifact)
+        uses: actions/upload-artifact@v3
+        with:
+          name: cross-platform-binaries
+          path: output/
