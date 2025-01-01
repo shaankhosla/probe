@@ -30,38 +30,6 @@ jobs:
           skip-cache: false
           version: latest
 
-      - name: Install Build Tools
-        run: |
-          sudo apt-get update && sudo apt-get install -y \
-              build-essential \
-              gcc-aarch64-linux-gnu \
-              g++-aarch64-linux-gnu \
-              libc6-dev-arm64-cross \
-              libstdc++6-arm64-cross
-
-      - name: Build binary
-        run: |
-          mkdir -p output
-
-          # Linux ARM64
-          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o output/probe-linux-arm64 cmd/probe/main.go
-
-          # Linux AMD64
-          GOOS=linux GOARCH=amd64 go build -o output/probe-linux-amd64 cmd/probe/main.go
-
-          # macOS AMD64
-          GOOS=darwin GOARCH=amd64 go build -o output/probe-darwin-amd64 cmd/probe/main.go
-
-          # macOS ARM64
-          GOOS=darwin GOARCH=arm64 go build -o output/probe-darwin-arm64 cmd/probe/main.go
-
-          # Windows AMD64
-          GOOS=windows GOARCH=amd64 go build -o output/probe-windows-amd64.exe cmd/probe/main.go
-
-          # Windows ARM64
-          GOOS=windows GOARCH=arm64 go build -o output/probe-windows-arm64.exe cmd/probe/main.go
-
-
       - name: Run tests
         run: |
           go test --race -v -count=1 -coverprofile=coverage.out ./...
