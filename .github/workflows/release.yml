@@ -1,0 +1,65 @@
+name: Release Pipeline
+on:
+  push:
+    tags:
+      - "v*" # Trigger on tags that follow the "v*" naming pattern (e.g., v1.0.0)
+
+jobs:
+  release:
+    name: Release Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+          cache-dependency-path: "go.sum"
+      - name: Install Build Tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+              build-essential \
+              gcc-aarch64-linux-gnu \
+              g++-aarch64-linux-gnu \
+              libc6-dev-arm64-cross \
+              libstdc++6-arm64-cross
+      - name: Build Binaries for All Platforms
+        run: |
+          mkdir -p output
+          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o output/probe-linux-arm64.exe main.go
+
+      - name: Archive Binaries
+        run: |
+          # Tarball/zip each binary (or keep as-is for direct upload)
+          cd output
+          for file in *; do
+            if [[ "$file" == *.exe ]]; then
+              zip "${file%.exe}.zip" "$file" # Zip Windows binaries
+            else
+              tar -czf "$file.tar.gz" "$file" # Tarball other binaries
+            fi
+            rm "$file" # Remove original files
+          done
+        shell: bash
+
+      - name: Create Release on GitHub
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Automated release for ${{ github.ref_name }}.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub token provided automatically by Actions
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          release_id: ${{ steps.create-release.outputs.id }}
+          asset_path: ./output/
+          asset_name: "{{basename}}"
+          asset_content_type: application/gzip

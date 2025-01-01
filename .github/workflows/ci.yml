@@ -10,7 +10,7 @@ on:
 
 jobs:
   ci:
-    name: Continuous Integration
+    name: CI
     runs-on: ubuntu-latest
 
     steps:
@@ -30,26 +30,8 @@ jobs:
           skip-cache: false
           version: latest
 
-      - name: Install Build Tools
-        run: |
-          sudo apt-get update && sudo apt-get install -y \
-              build-essential \
-              gcc-aarch64-linux-gnu \
-              g++-aarch64-linux-gnu \
-              libc6-dev-arm64-cross \
-              libstdc++6-arm64-cross
 
-      - name: Build binary
-        run: |
-          mkdir -p output
-          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o output/probe-linux-arm64.exe main.go
- 
       - name: Run tests
         run: |
           go test --race -v -count=1 -coverprofile=coverage.out ./...
       
-      - name: Upload Binaries (Artifact)
-        uses: actions/upload-artifact@v3
-        with:
-          name: cross-platform-binaries
-          path: output/
