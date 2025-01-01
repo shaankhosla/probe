@@ -16,26 +16,37 @@ jobs:
         with:
           go-version-file: "go.mod"
           cache-dependency-path: "go.sum"
-      - name: Install Build Tools
+
+
+      - name: Install Dependencies
         run: |
           sudo apt-get update && sudo apt-get install -y \
               build-essential \
               gcc-aarch64-linux-gnu \
               g++-aarch64-linux-gnu \
               libc6-dev-arm64-cross \
-              libstdc++6-arm64-cross
+              libstdc++6-arm64-cross \
+              clang llvm
+
+          # Install osxcross for macOS cross-compilation
+          git clone https://github.com/tpoechtrager/osxcross.git /tmp/osxcross
+          cd /tmp/osxcross
+          curl -o tarballs/MacOSX.sdk.tar.xz https://example.com/path/to/MacOSX.sdk.tar.xz
+          UNATTENDED=yes ./build.sh
+          export PATH=/tmp/osxcross/target/bin:$PATH
+
       - name: Build Binaries for All Platforms
         run: |
           mkdir -p output
+
           # Linux ARM64
           CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o output/probe-linux-arm64.exe main.go
 
           # macOS AMD64
-          CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -o output/probe-darwin-amd64 main.go
+          CC=o64-clang CXX=o64-clang++ CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -o output/probe-darwin-amd64 main.go
 
           # macOS ARM64
-          CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -o output/probe-darwin-arm64 main.go
-
+          CC=o64-clang CXX=o64-clang++ CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -o output/probe-darwin-arm64 main.go
 
       - name: Archive Binaries
         run: |
