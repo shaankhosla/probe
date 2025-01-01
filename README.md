@@ -8,6 +8,34 @@
 - **Interactive Interface**: A clean TUI for entering SQL queries and viewing results.
 - **Column Insights**: Quickly display all column names and structure of the dataset.
 
+## Usage
+Probe runs in your terminal in interactive mode. After installation, use the following command to start analyzing your data files:
+
+```bash
+probe <FILE_PATH>
+```
+
+### Example:
+For example, given a CSV file named `example.csv`:
+```csv
+id,name,age
+1,John,30
+2,Jane,25
+3,Sam,22
+```
+
+Run Probe and start querying:
+```bash
+probe example.csv
+```
+
+### Interactive CLI Commands
+1. **Default SQL Query**: By default, Probe executes `SELECT * FROM data LIMIT 10` to display a preview of the data.
+2. **Type Your Query**: Enter any valid SQL query in the input field (e.g., `SELECT name, age FROM data WHERE age > 23;`).
+3. **Error Handling**: If a query is invalid, Probe will display an error message in red below the results pane.
+4. **Keyboard Shortcuts**: Press `Ctrl+C` to exit.
+
+
 ## Installation:
 Follow one of the methods below to install `probe` on your system:
 
@@ -84,34 +112,6 @@ If you'd prefer to build `probe` from source, follow these steps:
    ```bash
    probe --help
    ```
-
-## Usage
-Probe runs in your terminal in interactive mode. After installation, use the following command to start analyzing your data files:
-
-```bash
-probe <FILE_PATH>
-```
-
-### Example:
-For example, given a CSV file named `example.csv`:
-```csv
-id,name,age
-1,John,30
-2,Jane,25
-3,Sam,22
-```
-
-Run Probe and start querying:
-```bash
-probe example.csv
-```
-
-### Interactive CLI Commands
-1. **Default SQL Query**: By default, Probe executes `SELECT * FROM data LIMIT 10` to display a preview of the data.
-2. **Type Your Query**: Enter any valid SQL query in the input field (e.g., `SELECT name, age FROM data WHERE age > 23;`).
-3. **Error Handling**: If a query is invalid, Probe will display an error message in red below the results pane.
-4. **Keyboard Shortcuts**: Press `Ctrl+C` to exit.
-
 
 ## How It Works
 Probe works by leveraging DuckDB's in-memory structured query capabilities. When you provide a file (such as CSV), Probe:
