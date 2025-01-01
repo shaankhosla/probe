@@ -30,6 +30,19 @@ jobs:
           skip-cache: false
           version: latest
 
+      - name: Install Build Tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+              build-essential \
+              gcc-aarch64-linux-gnu \
+              g++-aarch64-linux-gnu \
+              libc6-dev-arm64-cross \
+              libstdc++6-arm64-cross
+
+      - name: Build binary
+        run: |
+          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o probe-linux-arm64.exe cmd/probe/main.go
+ 
       - name: Run tests
         run: |
           go test --race -v -count=1 -coverprofile=coverage.out ./...
