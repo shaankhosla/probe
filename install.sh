@@ -44,10 +44,10 @@ get_download_url() {
     # Query GitHub API for latest release and find matching raw binary (not .tar.gz)
     DOWNLOAD_URL=$(curl -sL $LATEST_RELEASE_URL | \
         grep "browser_download_url" | \
-        grep -v ".tar.gz" | \   # Exclude .tar.gz files
-        grep "$GOOS-$GOARCH\"" | \  # Match the exact binary name
-        cut -d '"' -f 4)
+        grep -v ".tar.gz" 
+        grep "$GOOS-$GOARCH\"" cut -d '"' -f 4)
 
+    DOWNLOAD_URL=$(curl -sL $LATEST_RELEASE_URL | grep "browser_download_url" | grep -v ".tar.gz" | grep "$GOOS-$GOARCH" | cut -d '"' -f 4)
     # Exit script if no matching binary is found
     if [[ -z "$DOWNLOAD_URL" ]]; then
         echo -e "${RED}Error: Failed to find a matching raw binary for your system ($GOOS-$GOARCH).${NO_COLOR}"

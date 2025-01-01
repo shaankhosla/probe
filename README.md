@@ -8,6 +8,83 @@
 - **Interactive Interface**: A clean TUI for entering SQL queries and viewing results.
 - **Column Insights**: Quickly display all column names and structure of the dataset.
 
+## Installation:
+Follow one of the methods below to install `probe` on your system:
+
+
+### **1. Automated Installation (Recommended)**
+
+We provide an automated installation script for convenience. This script detects your system's operating system and architecture, downloads the appropriate binary from the latest release, and installs it for you.
+
+To install `probe`, simply run:
+
+```bash
+curl -sL https://raw.githubusercontent.com/shaankhosla/probe/main/install.sh | bash
+```
+
+Alternatively, download the installation script manually and then execute it:
+
+```bash
+wget https://raw.githubusercontent.com/shaankhosla/probe/main/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+Once installed, you can verify the installation by running:
+
+```bash
+probe --help
+```
+
+This will display the help information for `probe`.
+
+
+### **2. Download Prebuilt Binaries (Manually)**
+
+You can manually download a prebuilt binary from the **[Releases](https://github.com/shaankhosla/probe/releases)** page.
+
+1. Navigate to the latest release.
+2. Expand the "Assets" section.
+3. Download the binary that matches your system:
+   - For Linux (`amd64` or `arm64`), download `probe-linux-<architecture>`.
+   - For macOS (`amd64` or `arm64`), download `probe-darwin-<architecture>`.
+4. Move the binary to a directory in your system's `PATH` (such as `/usr/local/bin`) and make it executable:
+   ```bash
+   mv /path/to/downloaded/probe /usr/local/bin/probe
+   chmod +x /usr/local/bin/probe
+   ```
+
+
+### **3. Build from Source**
+
+If you'd prefer to build `probe` from source, follow these steps:
+
+#### Prerequisites
+- A working Go environment is required. You can install Go by following the instructions [here](https://golang.org/doc/install).
+
+#### Steps
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/shaankhosla/probe.git
+   cd probe
+   ```
+
+2. Build the binary:
+   ```bash
+   go build -o probe main.go
+   ```
+
+3. Move the binary to a directory in your system's `PATH` (such as `/usr/local/bin`) and make it executable:
+   ```bash
+   mv ./probe /usr/local/bin/probe
+   chmod +x /usr/local/bin/probe
+   ```
+
+4. Verify the installation:
+   ```bash
+   probe --help
+   ```
+
 ## Usage
 Probe runs in your terminal in interactive mode. After installation, use the following command to start analyzing your data files:
 
