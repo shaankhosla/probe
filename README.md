@@ -7,6 +7,7 @@
 - **Run SQL Queries**: Easily filter, aggregate, or analyze your data using SQL syntax.
 - **Interactive Interface**: A clean TUI for entering SQL queries and viewing results.
 - **Column Insights**: Quickly display all column names and structure of the dataset.
+- **Flexible filetypes**: Works out of the box on many different filetypes that [DuckDB supports]([url](https://duckdb.org/docs/data/data_sources.html)).
 
 ## Usage
 Probe runs in your terminal in interactive mode. After installation, use the following command to start analyzing your data files:
@@ -15,8 +16,8 @@ Probe runs in your terminal in interactive mode. After installation, use the fol
 probe <FILE_PATH>
 ```
 
-### Example:
-For example, given a CSV file named `example.csv`:
+### Example 1:
+Given a CSV file named `example.csv`:
 ```csv
 id,name,age
 1,John,30
@@ -27,6 +28,14 @@ id,name,age
 Run Probe and start querying:
 ```bash
 probe example.csv
+```
+
+### Example 2:
+Given a group of Parquet files in a directory with the same schema:
+
+Run Probe and start querying:
+```bash
+probe *.parquet
 ```
 
 ### Interactive CLI Commands
