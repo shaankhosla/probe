@@ -2,67 +2,80 @@ name: Release Pipeline
 on:
   push:
     tags:
-      - "v*" # Trigger on tags that follow the "v*" naming pattern (e.g., v1.0.0)
+      - "v*" # Trigger on tags like "v1.0.0"
 
 jobs:
-  release:
-    name: Release Binaries
-    runs-on: ubuntu-latest
+  build:
+    name: Build and Package Binaries
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    
     steps:
+      # Step 1: Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      # Step 2: Set up Go environment
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
           cache-dependency-path: "go.sum"
 
-
-      - name: Install Dependencies
+      # Step 3: Platform-specific tool installation
+      # Only on Linux runners, we may need additional tools for cross-compilation.
+      - name: Install Cross-Build Tools (Linux Only)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update && sudo apt-get install -y \
               build-essential \
               gcc-aarch64-linux-gnu \
               g++-aarch64-linux-gnu \
               libc6-dev-arm64-cross \
-              libstdc++6-arm64-cross \
-              clang llvm
+              libstdc++6-arm64-cross
 
-          # Install osxcross for macOS cross-compilation
-          git clone https://github.com/tpoechtrager/osxcross.git /tmp/osxcross
-          cd /tmp/osxcross
-          curl -o tarballs/MacOSX.sdk.tar.xz https://example.com/path/to/MacOSX.sdk.tar.xz
-          UNATTENDED=yes ./build.sh
-          export PATH=/tmp/osxcross/target/bin:$PATH
-
-      - name: Build Binaries for All Platforms
+      # Step 4: Compile binary for each matrix combination
+      - name: Build Binary
         run: |
           mkdir -p output
+          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o output/probe-${{ matrix.goos }}-${{ matrix.goarch }} main.go
 
-          # Linux ARM64
-          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o output/probe-linux-arm64.exe main.go
-
-          # macOS AMD64
-          CC=o64-clang CXX=o64-clang++ CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -o output/probe-darwin-amd64 main.go
-
-          # macOS ARM64
-          CC=o64-clang CXX=o64-clang++ CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -o output/probe-darwin-arm64 main.go
-
+      # Step 5: Archive the binary (zip/tar.gz)
       - name: Archive Binaries
         run: |
-          # Tarball/zip each binary (or keep as-is for direct upload)
           cd output
           for file in *; do
             if [[ "$file" == *.exe ]]; then
-              zip "${file%.exe}.zip" "$file" # Zip Windows binaries
+              zip "${file}.zip" "$file"
             else
-              tar -czf "$file.tar.gz" "$file" # Tarball other binaries
+              tar -czf "$file.tar.gz" "$file"
             fi
-            rm "$file" # Remove original files
           done
-        shell: bash
 
-      - name: Create Release on GitHub
+      # Step 6: Upload artifacts to GitHub Actions for later use
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-${{ matrix.os }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: ./output/*
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Download all build artifacts
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./release-assets
+
+      # Step 2: Create GitHub Release
+      - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ github.ref_name }}
@@ -72,9 +85,10 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub token provided automatically by Actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release Assets
+      # Step 3: Upload Release Assets
+      - name: Upload Assets to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: 'output/*'
+          files: './release-assets/**/*'
