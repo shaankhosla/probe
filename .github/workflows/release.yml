@@ -38,11 +38,15 @@ jobs:
               libc6-dev-arm64-cross \
               libstdc++6-arm64-cross
 
-      # Step 4: Compile binary for each matrix combination
+      # Step 4: Compile binary
       - name: Build Binary
         run: |
           mkdir -p output
-          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o output/probe-${{ matrix.goos }}-${{ matrix.goarch }} main.go
+          # Conditionally set CC for Linux; macOS uses clang implicitly
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=aarch64-linux-gnu-gcc
+          fi
+          CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o output/probe-${{ matrix.goos }}-${{ matrix.goarch }} main.go
 
       # Step 5: Archive the binary (zip/tar.gz)
       - name: Archive Binaries
