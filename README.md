@@ -2,6 +2,10 @@
 
 **Probe** is a lightweight, open-source CLI tool designed to make it simpler to investigate files. 
 
+
+https://github.com/user-attachments/assets/02fdcda3-85e3-4878-8efc-cdd5032a06e3
+
+
 ## Key Features:
 
 - **Run SQL Queries**: Easily filter, aggregate, or analyze your data using SQL syntax.
