@@ -11,11 +11,16 @@ import (
 	"github.com/rivo/tview"
 )
 
+const (
+	maxColSize  = 50
+	defaultRows = 100
+)
+
 func reformatSQL(query string, filename string) string {
 	fromStatement := fmt.Sprintf("from '%s'", filename)
 	query = strings.Replace(query, "from data", fromStatement, 1)
 	if !strings.Contains(query, "limit") {
-		query += " limit 100"
+		query += fmt.Sprintf(" limit %d", defaultRows)
 	}
 	return query
 
@@ -55,7 +60,7 @@ func initializeViews(table *tview.Table, columns *tview.TextView, filename strin
 	}
 
 	columnText := getAllColumns(filename)
-	columns.SetText(columnText).ScrollToBeginning()
+	columns.SetText(columnText).ScrollToBeginning().SetBorder(true).SetTitle("Columns")
 }
 
 func executeSQL(query string, filename string) ([][]string, error) {
@@ -112,11 +117,6 @@ func executeSQL(query string, filename string) ([][]string, error) {
 func RunProbe(filename string) error {
 	app := tview.NewApplication()
 
-	instructions := tview.NewTextView().
-		SetText("Type SQL Query below and hit Enter to execute. Press Ctrl+C to exit.").
-		SetWrap(true).
-		SetTextAlign(tview.AlignLeft)
-
 	resultsTable := tview.NewTable().
 		SetBorders(true)
 
@@ -128,16 +128,16 @@ func RunProbe(filename string) error {
 	columnsBoxWithContent := tview.NewFlex().
 		AddItem(columnsTextView, 0, 1, false)
 
-	var inputField *tview.InputField
 	errorTextView := tview.NewTextView().
 		SetWrap(true).
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignLeft)
 
+	var inputField *tview.InputField
+
 	inputField = tview.NewInputField().
 		SetLabel("SQL Query: ").
 		SetText("select * from data").
-		// SetFieldWidth(40).
 		SetFieldTextColor(tcell.ColorWhite).
 		SetFieldBackgroundColor(tcell.ColorBlack).
 		SetDoneFunc(func(key tcell.Key) {
@@ -148,9 +148,10 @@ func RunProbe(filename string) error {
 				resultsTable.Clear()
 			} else {
 				updateTable(resultsTable, results)
-				errorTextView.SetText("")
+				errorTextView.Clear()
 			}
 		})
+
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlC {
 			app.Stop()
@@ -161,8 +162,7 @@ func RunProbe(filename string) error {
 	flex := tview.NewFlex().
 		AddItem(columnsBoxWithContent, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(instructions, 0, 1, false).
-			AddItem(inputField, 3, 1, true).
+			AddItem(inputField, 1, 1, true).
 			AddItem(errorTextView, 0, 1, false).
 			AddItem(resultsTable, 0, 10, false), 0, 5, true)
 
@@ -180,7 +180,7 @@ func updateTable(table *tview.Table, rows [][]string) {
 			table.SetCell(rowIndex, colIndex,
 				tview.NewTableCell(cell).
 					SetAlign(tview.AlignCenter).
-					SetSelectable(rowIndex != 0),
+					SetSelectable(rowIndex != 0).SetMaxWidth(maxColSize),
 			)
 		}
 	}
