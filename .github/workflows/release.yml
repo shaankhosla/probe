@@ -11,9 +11,9 @@ jobs:
     strategy:
       matrix:
          include:
-          # - os: ubuntu-latest
-          #   goos: linux
-          #   goarch: amd64
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
           - os: ubuntu-latest
             goos: linux
             goarch: arm64
@@ -52,7 +52,7 @@ jobs:
         run: |
           mkdir -p output
           # Conditionally set CC for Linux; macOS uses clang implicitly
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
+          if [[ "$RUNNER_OS" == "Linux" && "${{ matrix.goarch }}" == "arm64" ]]; then
             export CC=aarch64-linux-gnu-gcc
           fi
           CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o output/probe-${{ matrix.goos }}-${{ matrix.goarch }} main.go
