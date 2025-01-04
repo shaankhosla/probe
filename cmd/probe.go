@@ -133,24 +133,35 @@ func RunProbe(filename string) error {
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignLeft)
 
-	var inputField *tview.InputField
+	var inputField *tview.TextArea
+	var inner_flex *tview.Flex
 
-	inputField = tview.NewInputField().
-		SetLabel("SQL Query: ").
-		SetText("select * from data").
-		SetFieldTextColor(tcell.ColorWhite).
-		SetFieldBackgroundColor(tcell.ColorBlack).
-		SetDoneFunc(func(key tcell.Key) {
+	inputField = tview.NewTextArea().SetLabel("Query: ").SetOffset(1, 1)
+	inputField.SetText("select * from data", true)
+	inputField.SetTitle("Query").SetBorder(true).SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+
+		key := event.Key()
+		if key == tcell.KeyEnter {
+
 			query := inputField.GetText()
 			results, err := executeSQL(query, filename)
-			if err != nil {
-				errorTextView.SetText(fmt.Sprintf("Error: %s", err.Error()))
-				resultsTable.Clear()
-			} else {
+			if err == nil {
+				inner_flex.ResizeItem(errorTextView, 0, 0)
+				inner_flex.ResizeItem(resultsTable, 0, 10)
 				updateTable(resultsTable, results)
 				errorTextView.Clear()
+			} else {
+				resultsTable.Clear()
+				inner_flex.ResizeItem(resultsTable, 0, 0)
+				inner_flex.ResizeItem(errorTextView, 0, 10)
+				errorTextView.SetText(fmt.Sprintf("Error: %s", err.Error())).ScrollToBeginning()
 			}
-		})
+
+			return nil
+		}
+		return event
+
+	})
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlC {
@@ -159,14 +170,15 @@ func RunProbe(filename string) error {
 		}
 		return event
 	})
+	inner_flex = tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(inputField, 0, 3, true).
+		AddItem(errorTextView, 0, 0, false).
+		AddItem(resultsTable, 0, 10, false)
 	flex := tview.NewFlex().
 		AddItem(columnsBoxWithContent, 0, 1, false).
-		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(inputField, 1, 1, true).
-			AddItem(errorTextView, 0, 1, false).
-			AddItem(resultsTable, 0, 10, false), 0, 5, true)
+		AddItem(inner_flex, 0, 5, true)
 
-	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
+	if err := app.SetRoot(flex, true).SetFocus(inputField).Run(); err != nil {
 		panic(err)
 	}
 	return nil
