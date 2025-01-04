@@ -1,6 +1,7 @@
 # Probe: Interactive SQL Query Tool for File Analysis 
 
 **Probe** is a lightweight, open-source CLI tool designed to make it simpler to investigate files. 
+<img width="895" alt="Screenshot" src="https://github.com/user-attachments/assets/cd7dace2-7e2c-4829-8f7d-3ecf46c1ee26" />
 
 
 https://github.com/user-attachments/assets/02fdcda3-85e3-4878-8efc-cdd5032a06e3
