@@ -19,10 +19,6 @@ func main() {
 			}
 			filename := c.Args().Get(0)
 
-			if _, err := os.Stat(filename); err != nil {
-				return fmt.Errorf("file does not exist: %s", filename)
-			}
-
 			return cmd.RunProbe(filename)
 		},
 	}
