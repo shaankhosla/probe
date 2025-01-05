@@ -44,10 +44,19 @@ probe *.parquet
 ```
 
 ### Interactive CLI Commands
-1. **Default SQL Query**: By default, Probe executes `SELECT * FROM data LIMIT 10` to display a preview of the data.
-2. **Type Your Query**: Enter any valid SQL query in the input field (e.g., `SELECT name, age FROM data WHERE age > 23;`).
-3. **Error Handling**: If a query is invalid, Probe will display an error message in red below the results pane.
-4. **Keyboard Shortcuts**: Press `Ctrl+C` to exit.
+1. Press `Ctrl+C` to exit.
+2. Press `tab` to switch focus from the query box to to the results box and vice-versa.
+3. If the results box has focus, you can navigate the results using the following:
+  
+    - h, left arrow: Move left by one column.
+    - l, right arrow: Move right by one column.
+    - j, down arrow: Move down by one row.
+    - k, up arrow: Move up by one row.
+    - g, home: Move to the top.
+    - G, end: Move to the bottom.
+    - Ctrl-F, page down: Move down by one page.
+    - Ctrl-B, page up: Move up by one page.
+
 
 
 ## Installation:
