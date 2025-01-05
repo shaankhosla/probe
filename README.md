@@ -40,7 +40,7 @@ Given a group of Parquet files in a directory with the same schema:
 
 Run Probe and start querying:
 ```bash
-probe *.parquet
+probe "*.parquet"
 ```
 
 ### Interactive CLI Commands
