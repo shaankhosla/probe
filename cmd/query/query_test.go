@@ -30,7 +30,7 @@ func TestReformatSQL(t *testing.T) {
 }
 
 func TestExecuteQuery(t *testing.T) {
-
+	InitializeDB()
 	filename := os.TempDir() + "temp.csv"
 
 	fmt.Println(filename)

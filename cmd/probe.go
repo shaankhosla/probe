@@ -30,11 +30,9 @@ func RunProbe(filename string) error {
 			return nil
 		}
 		if key == tcell.KeyEnter {
-
 			query_text := tuiAssets.InputField.GetText()
 			results, err := query.ExecuteSQL(query_text, filename)
 			tuiAssets.UpdateTable(results, err)
-
 			return nil
 		}
 		return event

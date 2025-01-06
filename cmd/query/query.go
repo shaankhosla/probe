@@ -27,7 +27,7 @@ func InitializeDB() {
 func reformatSQL(query string, filename string) string {
 	fromStatement := fmt.Sprintf("from '%s'", filename)
 	query = strings.Replace(query, "from data", fromStatement, 1)
-	if !strings.Contains(query, "limit") {
+	if !strings.Contains(query, "limit ") {
 		query += fmt.Sprintf(" limit %d", defaultRows)
 	}
 	query = insertionOrder + query

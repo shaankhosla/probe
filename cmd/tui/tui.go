@@ -21,17 +21,16 @@ type TUI struct {
 	Error        *tview.TextView
 	InputField   *tview.TextArea
 	InnerFlex    *tview.Flex
-	OuterFlex    *tview.Flex
 }
 
 func (tuiAssets TUI) showError(err error) {
-	tuiAssets.ResultsTable.Clear()
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.ResultsTable, 0, 0)
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.Error, 0, 10)
 	tuiAssets.Error.SetText(fmt.Sprintf("Error: %s", err.Error())).ScrollToBeginning()
 }
 
 func (tuiAssets TUI) UpdateTable(rows [][]string, err error) {
+	tuiAssets.ResultsTable.Clear()
 	if err != nil {
 		tuiAssets.showError(err)
 		return
@@ -39,8 +38,6 @@ func (tuiAssets TUI) UpdateTable(rows [][]string, err error) {
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.Error, 0, 0)
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.ResultsTable, 0, 10)
 	tuiAssets.Error.Clear()
-
-	tuiAssets.ResultsTable.Clear()
 
 	for rowIndex, row := range rows {
 		for colIndex, cell := range row {
@@ -115,6 +112,5 @@ func CreateTUIAssets(filename string) *TUI {
 		Error:        errorTextView,
 		InputField:   inputField,
 		InnerFlex:    innerFlex,
-		OuterFlex:    flex,
 	}
 }
