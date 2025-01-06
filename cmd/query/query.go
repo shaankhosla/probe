@@ -9,10 +9,20 @@ import (
 )
 
 const (
-	maxColSize     = 50
 	defaultRows    = 100
 	insertionOrder = "SET preserve_insertion_order = false;\n"
 )
+
+var db *sql.DB
+
+func InitializeDB() {
+	var err error
+	db, err = sql.Open("duckdb", "")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
 
 func reformatSQL(query string, filename string) string {
 	fromStatement := fmt.Sprintf("from '%s'", filename)
@@ -28,11 +38,6 @@ func reformatSQL(query string, filename string) string {
 func GetAllColumns(filename string) string {
 	query := "select * from data"
 	query = reformatSQL(query, filename)
-	db, err := sql.Open("duckdb", "")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -55,11 +60,6 @@ func GetAllColumns(filename string) string {
 
 func ExecuteSQL(query string, filename string) ([][]string, error) {
 	query = reformatSQL(query, filename)
-	db, err := sql.Open("duckdb", "")
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to DuckDB: %w", err)
-	}
-	defer db.Close()
 
 	rows, err := db.Query(query)
 	if err != nil {

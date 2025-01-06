@@ -4,14 +4,14 @@ import (
 	_ "github.com/marcboeker/go-duckdb"
 
 	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	_ "github.com/marcboeker/go-duckdb"
 	"github.com/rivo/tview"
 )
 
 const (
-	maxColSize  = 50
-	defaultRows = 100
+	maxColSize = 50
 )
 
 type TUI struct {
@@ -24,30 +24,31 @@ type TUI struct {
 	OuterFlex    *tview.Flex
 }
 
-func ShowError(TUI TUI, err error) {
-	TUI.ResultsTable.Clear()
-	TUI.InnerFlex.ResizeItem(TUI.ResultsTable, 0, 0)
-	TUI.InnerFlex.ResizeItem(TUI.Error, 0, 10)
-	TUI.Error.SetText(fmt.Sprintf("Error: %s", err.Error())).ScrollToBeginning()
+func (tuiAssets TUI) ShowError(err error) {
+	tuiAssets.ResultsTable.Clear()
+	tuiAssets.InnerFlex.ResizeItem(tuiAssets.ResultsTable, 0, 0)
+	tuiAssets.InnerFlex.ResizeItem(tuiAssets.Error, 0, 10)
+	tuiAssets.Error.SetText(fmt.Sprintf("Error: %s", err.Error())).ScrollToBeginning()
 }
-func UpdateTable(TUI TUI, rows [][]string) {
-	TUI.InnerFlex.ResizeItem(TUI.Error, 0, 0)
-	TUI.InnerFlex.ResizeItem(TUI.ResultsTable, 0, 10)
-	TUI.Error.Clear()
 
-	TUI.ResultsTable.Clear()
+func (tuiAssets TUI) UpdateTable(rows [][]string) {
+	tuiAssets.InnerFlex.ResizeItem(tuiAssets.Error, 0, 0)
+	tuiAssets.InnerFlex.ResizeItem(tuiAssets.ResultsTable, 0, 10)
+	tuiAssets.Error.Clear()
+
+	tuiAssets.ResultsTable.Clear()
 
 	for rowIndex, row := range rows {
 		for colIndex, cell := range row {
-			TUI.ResultsTable.SetCell(rowIndex, colIndex,
+			tuiAssets.ResultsTable.SetCell(rowIndex, colIndex,
 				tview.NewTableCell(cell).
 					SetAlign(tview.AlignCenter).
 					SetSelectable(rowIndex != 0).SetMaxWidth(maxColSize),
 			)
 		}
 	}
-	TUI.ResultsTable.ScrollToBeginning()
-	TUI.ResultsTable.SetFixed(1, 0)
+	tuiAssets.ResultsTable.ScrollToBeginning()
+	tuiAssets.ResultsTable.SetFixed(1, 0)
 }
 
 func CreateTUIAssets(filename string) *TUI {
