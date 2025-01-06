@@ -41,7 +41,7 @@ func GetAllColumns(filename string) string {
 
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Fatalf("Failed to execute query: %s", err)
+		log.Fatalf("Unable to query file(s) with name %s due to error %s", filename, err)
 	}
 	defer rows.Close()
 

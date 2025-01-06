@@ -24,14 +24,18 @@ type TUI struct {
 	OuterFlex    *tview.Flex
 }
 
-func (tuiAssets TUI) ShowError(err error) {
+func (tuiAssets TUI) showError(err error) {
 	tuiAssets.ResultsTable.Clear()
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.ResultsTable, 0, 0)
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.Error, 0, 10)
 	tuiAssets.Error.SetText(fmt.Sprintf("Error: %s", err.Error())).ScrollToBeginning()
 }
 
-func (tuiAssets TUI) UpdateTable(rows [][]string) {
+func (tuiAssets TUI) UpdateTable(rows [][]string, err error) {
+	if err != nil {
+		tuiAssets.showError(err)
+		return
+	}
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.Error, 0, 0)
 	tuiAssets.InnerFlex.ResizeItem(tuiAssets.ResultsTable, 0, 10)
 	tuiAssets.Error.Clear()

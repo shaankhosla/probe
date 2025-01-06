@@ -10,9 +10,7 @@ import (
 
 func initializeViews(tuiAssets tui.TUI, filename string) {
 	results, err := query.ExecuteSQL("select * from data", filename)
-	if err == nil {
-		tuiAssets.UpdateTable(results)
-	}
+	tuiAssets.UpdateTable(results, err)
 
 	columnText := query.GetAllColumns(filename)
 	tuiAssets.Columns.SetText(columnText).ScrollToBeginning().SetBorder(true).SetTitle("Columns")
@@ -35,11 +33,7 @@ func RunProbe(filename string) error {
 
 			query_text := tuiAssets.InputField.GetText()
 			results, err := query.ExecuteSQL(query_text, filename)
-			if err == nil {
-				tuiAssets.UpdateTable(results)
-			} else {
-				tuiAssets.ShowError(err)
-			}
+			tuiAssets.UpdateTable(results, err)
 
 			return nil
 		}
