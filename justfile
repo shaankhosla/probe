@@ -3,3 +3,5 @@
 tag version:
     git tag -a {{version}} -m "Release {{version}}"
     git push origin {{version}}
+test:
+    go test -cover ./...
