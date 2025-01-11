@@ -66,3 +66,33 @@ func TestExecuteQuery(t *testing.T) {
 	}
 	assert.Equal(t, results, data, "Results didn't match query")
 }
+
+func TestGetAllColumns(t *testing.T) {
+	InitializeDB()
+
+	file, err := os.CreateTemp("", "temp-*.csv")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer func() {
+		file.Close()
+		os.Remove(file.Name())
+	}()
+
+	writer := csv.NewWriter(file)
+	err = writer.WriteAll([][]string{
+		{"a", "b", "c"},
+		{"1", "2", "3"},
+		{"3", "4", "5"},
+	})
+	if err != nil {
+		t.Fatalf("Failed to write to CSV: %v", err)
+	}
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		t.Fatalf("Failed to flush CSV writer: %v", err)
+	}
+	columns := GetAllColumns(file.Name())
+	assert.Equal(t, columns, "a\nb\nc\n", "Get all columns")
+}
