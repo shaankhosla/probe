@@ -1,7 +1,7 @@
 package query
 
 import (
-	"fmt"
+	"encoding/csv"
 	"os"
 	"strings"
 	"testing"
@@ -32,8 +32,34 @@ func TestReformatSQL(t *testing.T) {
 func TestExecuteQuery(t *testing.T) {
 	InitializeDB()
 	filename := os.TempDir() + "temp.csv"
+	file, err := os.Create(filename)
+	if err != nil {
+		t.Fatalf("Failed to create file: %v", err)
+	}
+	defer file.Close()
 
-	fmt.Println(filename)
-	// os.WriteFile(filename, "a, b, c\n1, 2, 3")
-	// assert.Equal(t, false, true, "")
+	writer := csv.NewWriter(file)
+	err = writer.WriteAll([][]string{
+		{"a", "b", "c"},
+		{"1", "2", "3"},
+		{"3", "4", "5"},
+	})
+	if err != nil {
+		t.Fatalf("Failed to write to CSV: %v", err)
+	}
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		t.Fatalf("Failed to flush CSV writer: %v", err)
+	}
+
+	results, err := ExecuteSQL("select sum(a) as a, max(c) as c from data", filename)
+	if err != nil {
+		t.Fatalf("Failed to query: %v", err)
+	}
+	data := [][]string{
+		{"a", "c"},
+		{"4", "5"},
+	}
+	assert.Equal(t, results, data, "Results didn't match query")
 }

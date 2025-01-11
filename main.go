@@ -15,7 +15,7 @@ func main() {
 		Usage: "Interactive SQL query tool for file analysis.",
 		Action: func(c *cli.Context) error {
 			if c.NArg() < 1 {
-				return fmt.Errorf("error: you must provide a filename as an argument")
+				return fmt.Errorf("error: you must provide a filename as an argument e.g. probe 'example.csv'")
 			}
 			filename := c.Args().Get(0)
 
