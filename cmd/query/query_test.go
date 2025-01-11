@@ -31,12 +31,15 @@ func TestReformatSQL(t *testing.T) {
 
 func TestExecuteQuery(t *testing.T) {
 	InitializeDB()
-	filename := os.TempDir() + "temp.csv"
-	file, err := os.Create(filename)
+
+	file, err := os.CreateTemp("", "temp-*.csv")
 	if err != nil {
-		t.Fatalf("Failed to create file: %v", err)
+		t.Fatalf("Failed to create temporary file: %v", err)
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		os.Remove(file.Name())
+	}()
 
 	writer := csv.NewWriter(file)
 	err = writer.WriteAll([][]string{
@@ -53,7 +56,7 @@ func TestExecuteQuery(t *testing.T) {
 		t.Fatalf("Failed to flush CSV writer: %v", err)
 	}
 
-	results, err := ExecuteSQL("select sum(a) as a, max(c) as c from data", filename)
+	results, err := ExecuteSQL("select sum(a) as a, max(c) as c from data", file.Name())
 	if err != nil {
 		t.Fatalf("Failed to query: %v", err)
 	}
